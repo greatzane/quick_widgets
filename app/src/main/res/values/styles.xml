@@ -1,0 +1,22 @@
+<resources>
+    <style name="Theme.ShortcutGrid" parent="android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:fontFamily">sans</item>
+        <item name="android:colorAccent">#006553</item>
+        <item name="android:windowBackground">#F5F6F2</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+    </style>
+
+    <style name="Theme.ShortcutGrid.OpenShortcut" parent="Theme.ShortcutGrid">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:backgroundDimEnabled">false</item>
+        <item name="android:windowAnimationStyle">@null</item>
+    </style>
+
+    <dimen name="widget_corner">22dp</dimen>
+    <dimen name="widget_inset_horizontal">8dp</dimen>
+    <dimen name="widget_inset_vertical">4dp</dimen>
+    <dimen name="widget_icon_inset">3dp</dimen>
+</resources>
