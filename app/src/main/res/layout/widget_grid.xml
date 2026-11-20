@@ -27,6 +27,14 @@
             android:paddingTop="@dimen/widget_inset_vertical"
             android:paddingBottom="@dimen/widget_inset_vertical">
 
+            <FrameLayout
+                android:id="@+id/widget_top_gap"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="0.30"
+                android:importantForAccessibility="no"
+                android:visibility="gone" />
+
             <LinearLayout
                 android:id="@+id/first_row"
                 android:layout_width="match_parent"
@@ -48,6 +56,14 @@
                 android:layout_height="0dp"
                 android:layout_weight="1"
                 android:orientation="horizontal"
+                android:visibility="gone" />
+
+            <FrameLayout
+                android:id="@+id/widget_bottom_gap"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="0.30"
+                android:importantForAccessibility="no"
                 android:visibility="gone" />
         </LinearLayout>
     </FrameLayout>

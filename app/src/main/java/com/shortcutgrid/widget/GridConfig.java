@@ -10,8 +10,8 @@ final class GridConfig {
     static final int MIN_ICON_DP = 32;
     static final int MAX_ICON_DP = 64;
     static final int DEFAULT_ICON_DP = 48;
-    // Match the spacer weight in widget_grid.xml so the preview fits like the desktop widget.
-    static final float ROW_GAP_WEIGHT = .30f;
+    // Match the top, middle, and bottom spacer weights in widget_grid.xml.
+    static final float VERTICAL_GAP_WEIGHT = .30f;
 
     int rows;
     int columns = 4;
@@ -38,7 +38,7 @@ final class GridConfig {
     }
 
     static int panelHeightDp(int rows, int iconSizeDp) {
-        float weight = rows == 2 ? rows + ROW_GAP_WEIGHT : rows;
+        float weight = rows == 2 ? rows + 3 * VERTICAL_GAP_WEIGHT : rows;
         return Math.round(weight * Math.max(48, iconSizeDp + 10)) + 8;
     }
 

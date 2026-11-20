@@ -44,10 +44,8 @@ final class PreviewSurface extends FrameLayout {
         int iconSize = dp(context, config.iconSizeDp);
         int iconInset = context.getResources().getDimensionPixelSize(R.dimen.widget_icon_inset);
         int emptySize = dp(context, 30);
+        if (config.rows == 2) addVerticalGap(widget);
         for (int rowIndex = 0; rowIndex < config.rows; rowIndex++) {
-            if (rowIndex > 0) {
-                widget.addView(new View(context), new LinearLayout.LayoutParams(MATCH, 0, GridConfig.ROW_GAP_WEIGHT));
-            }
             LinearLayout line = row(context);
             widget.addView(line, new LinearLayout.LayoutParams(MATCH, 0, 1));
             for (int column = 0; column < config.columns; column++) {
@@ -81,7 +79,13 @@ final class PreviewSurface extends FrameLayout {
                     tile.setOnClickListener(view -> onSelect.accept(index));
                 }
             }
+            if (config.rows == 2) addVerticalGap(widget);
         }
+    }
+
+    private static void addVerticalGap(LinearLayout widget) {
+        widget.addView(new View(widget.getContext()),
+                new LinearLayout.LayoutParams(MATCH, 0, GridConfig.VERTICAL_GAP_WEIGHT));
     }
 
     private static final class Wallpaper extends View {

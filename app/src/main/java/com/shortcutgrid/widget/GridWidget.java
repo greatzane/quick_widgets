@@ -69,8 +69,10 @@ public class GridWidget extends AppWidgetProvider {
             views.setViewVisibility(R.id.widget_panel, View.GONE);
         }
         int secondRowVisibility = config.rows == 2 ? View.VISIBLE : View.GONE;
+        views.setViewVisibility(R.id.widget_top_gap, secondRowVisibility);
         views.setViewVisibility(R.id.widget_row_gap, secondRowVisibility);
         views.setViewVisibility(R.id.second_row, secondRowVisibility);
+        views.setViewVisibility(R.id.widget_bottom_gap, secondRowVisibility);
         views.removeAllViews(R.id.first_row);
         views.removeAllViews(R.id.second_row);
         int iconSize = EditorUi.dp(context, config.iconSizeDp);
