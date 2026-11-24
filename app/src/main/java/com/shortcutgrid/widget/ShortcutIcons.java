@@ -10,15 +10,15 @@ import android.graphics.Path;
 import android.graphics.drawable.Drawable;
 
 final class ShortcutIcons {
-    private record Tone(int tile, int ink, int border, char initial) {}
+    private record Tone(int tile, int ink, int border, int logo) {}
 
-    private static final Tone WECHAT = new Tone(0xFFE3F4E9, 0xFF087044, 0xFFB9DDC8, 'W');
-    private static final Tone ALIPAY = new Tone(0xFFE5F0FF, 0xFF145AA8, 0xFFC1D8F4, 'A');
-    private static final Tone FEISHU = new Tone(0xFFEDE9FB, 0xFF5142A5, 0xFFD5CDEF, 'F');
-    private static final Tone UNIONPAY = new Tone(0xFFFBE8ED, 0xFFA32A49, 0xFFF1C9D5, 'Y');
-    private static final Tone MEITUAN = new Tone(0xFFFFF1C2, 0xFF775307, 0xFFEBD283, 'M');
-    private static final Tone DIDI = new Tone(0xFFFCE9DC, 0xFFA74813, 0xFFF3CAAF, 'D');
-    private static final Tone GENERIC = new Tone(0xFFE8EFEB, 0xFF345D4C, 0xFFCCDBD2, '\0');
+    private static final Tone WECHAT = new Tone(0xFFE3F4E9, 0xFF087044, 0xFFB9DDC8, R.drawable.logo_wechat);
+    private static final Tone ALIPAY = new Tone(0xFFE5F0FF, 0xFF145AA8, 0xFFC1D8F4, R.drawable.logo_alipay);
+    private static final Tone FEISHU = new Tone(0xFFEDE9FB, 0xFF5142A5, 0xFFD5CDEF, R.drawable.logo_feishu);
+    private static final Tone UNIONPAY = new Tone(0xFFFBE8ED, 0xFFA32A49, 0xFFF1C9D5, R.drawable.logo_unionpay);
+    private static final Tone MEITUAN = new Tone(0xFFFFF1C2, 0xFF775307, 0xFFEBD283, R.drawable.logo_meituan);
+    private static final Tone DIDI = new Tone(0xFFFCE9DC, 0xFFA74813, 0xFFF3CAAF, R.drawable.logo_didi);
+    private static final Tone GENERIC = new Tone(0xFFE8EFEB, 0xFF345D4C, 0xFFCCDBD2, 0);
 
     private ShortcutIcons() {}
 
@@ -26,7 +26,8 @@ final class ShortcutIcons {
         Bitmap bitmap = Bitmap.createBitmap(sizePx, sizePx, Bitmap.Config.ARGB_8888);
         bitmap.setDensity(context.getResources().getDisplayMetrics().densityDpi);
         Canvas canvas = new Canvas(bitmap);
-        if (entry.glyph() == ShortcutEntry.Glyph.APP) {
+        ShortcutEntry.Glyph glyph = entry.glyph();
+        if (glyph == ShortcutEntry.Glyph.APP) {
             Drawable icon = appIcon(context, entry.packageName(), entry.iconResource());
             if (icon != null) {
                 icon.setBounds(0, 0, sizePx, sizePx);
@@ -34,7 +35,9 @@ final class ShortcutIcons {
                 return bitmap;
             }
         }
-        canvas.scale(sizePx / 48f, sizePx / 48f);
+        float scale = sizePx / 48f;
+        canvas.save();
+        canvas.scale(scale, scale);
         Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
         Tone tone = switch (entry.packageName()) {
             case "com.tencent.mm" -> WECHAT;
@@ -55,11 +58,22 @@ final class ShortcutIcons {
         paint.setStrokeWidth(2.4f);
         paint.setStrokeCap(Paint.Cap.ROUND);
         paint.setStrokeJoin(Paint.Join.ROUND);
-        switch (entry.glyph()) {
-            case SCAN -> scan(canvas, paint, tone.initial());
-            case PAY -> pay(canvas, paint, tone.initial());
+        boolean hasLogo = tone.logo() != 0
+                && (glyph == ShortcutEntry.Glyph.SCAN || glyph == ShortcutEntry.Glyph.PAY);
+        switch (glyph) {
+            case SCAN -> scan(canvas, paint, hasLogo);
+            case PAY -> pay(canvas, paint, hasLogo);
             case TRANSIT -> transit(canvas, paint);
             case APP, LINK -> link(canvas, paint);
+        }
+        canvas.restore();
+        if (hasLogo) {
+            Drawable logo = context.getDrawable(tone.logo()).mutate();
+            logo.setTint(tone.ink());
+            int start = Math.round(27 * scale);
+            int end = Math.round(41 * scale);
+            logo.setBounds(start, start, end, end);
+            logo.draw(canvas);
         }
         return bitmap;
     }
@@ -82,7 +96,7 @@ final class ShortcutIcons {
         }
     }
 
-    private static void scan(Canvas canvas, Paint paint, char initial) {
+    private static void scan(Canvas canvas, Paint paint, boolean hasLogo) {
         Path path = new Path();
         path.moveTo(11, 19);
         path.lineTo(11, 15);
@@ -92,7 +106,7 @@ final class ShortcutIcons {
         path.lineTo(33, 11);
         path.quadTo(37, 11, 37, 15);
         path.lineTo(37, 19);
-        if (initial == '\0') {
+        if (!hasLogo) {
             path.moveTo(37, 29);
             path.lineTo(37, 33);
             path.quadTo(37, 37, 33, 37);
@@ -106,21 +120,19 @@ final class ShortcutIcons {
         canvas.drawLine(14, 24, 34, 24, paint);
         paint.setStyle(Paint.Style.FILL);
         canvas.drawRoundRect(19, 17, 23, 21, 1, 1, paint);
-        float lowerDotX = initial == '\0' ? 25 : 21.5f;
+        float lowerDotX = hasLogo ? 21.5f : 25;
         canvas.drawRoundRect(lowerDotX, 27, lowerDotX + 4, 31, 1, 1, paint);
-        drawInitial(canvas, paint, initial);
     }
 
-    private static void pay(Canvas canvas, Paint paint, char initial) {
+    private static void pay(Canvas canvas, Paint paint, boolean hasLogo) {
         drawQrFinder(canvas, paint, 11, 11);
         drawQrFinder(canvas, paint, 27, 11);
         drawQrFinder(canvas, paint, 11, 27);
 
-        if (initial != '\0') {
+        if (hasLogo) {
             canvas.drawRoundRect(23, 23, 26.8f, 26.8f, .6f, .6f, paint);
             canvas.drawRoundRect(29.4f, 23.5f, 33.4f, 25.5f, .6f, .6f, paint);
             canvas.drawRoundRect(23.6f, 30, 26, 35.2f, .6f, .6f, paint);
-            drawInitial(canvas, paint, initial);
             return;
         }
 
@@ -146,60 +158,6 @@ final class ShortcutIcons {
         canvas.drawRoundRect(x, y, x + 10, y + 10, 2, 2, paint);
         paint.setStyle(Paint.Style.FILL);
         canvas.drawRoundRect(x + 3, y + 3, x + 7, y + 7, .65f, .65f, paint);
-    }
-
-    private static void drawInitial(Canvas canvas, Paint paint, char initial) {
-        Path path = new Path();
-        switch (initial) {
-            case 'W' -> {
-                path.moveTo(.25f, 0);
-                path.lineTo(2.2f, 8.6f);
-                path.lineTo(4.5f, 2.6f);
-                path.lineTo(6.8f, 8.6f);
-                path.lineTo(8.75f, 0);
-            }
-            case 'A' -> {
-                path.moveTo(.7f, 8.6f);
-                path.lineTo(4.5f, 0);
-                path.lineTo(8.3f, 8.6f);
-                path.moveTo(2.1f, 5.5f);
-                path.lineTo(6.9f, 5.5f);
-            }
-            case 'F' -> {
-                path.moveTo(2, 8.6f);
-                path.lineTo(2, 0);
-                path.lineTo(7.4f, 0);
-                path.moveTo(2, 4.1f);
-                path.lineTo(6.2f, 4.1f);
-            }
-            case 'M' -> {
-                path.moveTo(.9f, 8.6f);
-                path.lineTo(.9f, 0);
-                path.lineTo(4.5f, 5.4f);
-                path.lineTo(8.1f, 0);
-                path.lineTo(8.1f, 8.6f);
-            }
-            case 'D' -> {
-                path.moveTo(1.6f, 0);
-                path.lineTo(4, 0);
-                path.cubicTo(6.55f, 0, 8.1f, 1.55f, 8.1f, 4.3f);
-                path.cubicTo(8.1f, 7.05f, 6.55f, 8.6f, 4, 8.6f);
-                path.lineTo(1.6f, 8.6f);
-                path.close();
-            }
-            case 'Y' -> {
-                path.moveTo(.8f, 0);
-                path.lineTo(4.5f, 4.7f);
-                path.lineTo(8.2f, 0);
-                path.moveTo(4.5f, 4.7f);
-                path.lineTo(4.5f, 8.6f);
-            }
-            default -> { return; }
-        }
-        path.offset(28.5f, 28.6f);
-        paint.setStyle(Paint.Style.STROKE);
-        paint.setStrokeWidth(1.9f);
-        canvas.drawPath(path, paint);
     }
 
     private static void transit(Canvas canvas, Paint paint) {
